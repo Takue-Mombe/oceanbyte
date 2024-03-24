@@ -2,98 +2,58 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ATMInterface extends JFrame {
+    private Map<String, String> userCredentials;
+    private Map<String, Integer> userBalances;
+    private String currentUser;
+    private JLabel messageLabel;
     private JTextField userIdField;
     private JPasswordField pinField;
     private JButton loginButton;
-    private JButton historyButton;
-    private JButton withdrawButton;
-    private JButton depositButton;
-    private JButton transferButton;
+    private JButton registerButton;
     private JButton quitButton;
 
     public ATMInterface() {
         super("ATM Interface");
         setSize(300, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(3, 2));
+        setLayout(new FlowLayout());
 
-        JLabel userIdLabel = new JLabel("User ID:");
-        add(userIdLabel);
+        userCredentials = new HashMap<>();
+        userBalances = new HashMap<>();
 
-        userIdField = new JTextField();
+        messageLabel = new JLabel("Enter your user ID and PIN:");
+        add(messageLabel);
+
+        userIdField = new JTextField(10);
         add(userIdField);
 
-        JLabel pinLabel = new JLabel("PIN:");
-        add(pinLabel);
-
-        pinField = new JPasswordField();
+        pinField = new JPasswordField(10);
         add(pinField);
 
         loginButton = new JButton("Login");
         add(loginButton);
 
-        historyButton = new JButton("Transaction History");
-        add(historyButton);
-
-        withdrawButton = new JButton("Withdraw");
-        add(withdrawButton);
-
-        depositButton = new JButton("Deposit");
-        add(depositButton);
-
-        transferButton = new JButton("Transfer");
-        add(transferButton);
+        registerButton = new JButton("Register");
+        add(registerButton);
 
         quitButton = new JButton("Quit");
         add(quitButton);
 
-        // Action Listeners
+        registerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                registerUser();
+            }
+        });
+
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Implement login functionality here
-                String userId = userIdField.getText();
-                String pin = String.valueOf(pinField.getPassword());
-                // Verify user ID and PIN
-                // If valid, enable other buttons
-                historyButton.setEnabled(true);
-                withdrawButton.setEnabled(true);
-                depositButton.setEnabled(true);
-                transferButton.setEnabled(true);
-            }
-        });
-
-        historyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Implement transaction history functionality here
-                JOptionPane.showMessageDialog(null, "Transaction History");
-            }
-        });
-
-        withdrawButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Implement withdraw functionality here
-                JOptionPane.showMessageDialog(null, "Withdraw");
-            }
-        });
-
-        depositButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Implement deposit functionality here
-                JOptionPane.showMessageDialog(null, "Deposit");
-            }
-        });
-
-        transferButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Implement transfer functionality here
-                JOptionPane.showMessageDialog(null, "Transfer");
+                loginUser();
             }
         });
 
@@ -103,6 +63,56 @@ public class ATMInterface extends JFrame {
                 System.exit(0);
             }
         });
+    }
+
+    private void registerUser() {
+        String userId = userIdField.getText();
+        String pin = new String(pinField.getPassword());
+
+        if (userId.isEmpty() || pin.isEmpty()) {
+            showMessage("Please enter both user ID and PIN.");
+            return;
+        }
+
+        if (userCredentials.containsKey(userId)) {
+            showMessage("User already exists. Please choose a different user ID.");
+            return;
+        }
+
+        userCredentials.put(userId, pin);
+        userBalances.put(userId, 0);
+
+        showMessage("User registered successfully. You can now login.");
+    }
+
+    private void loginUser() {
+        String userId = userIdField.getText();
+        String pin = new String(pinField.getPassword());
+
+        if (userId.isEmpty() || pin.isEmpty()) {
+            showMessage("Please enter both user ID and PIN.");
+            return;
+        }
+
+        if (!userCredentials.containsKey(userId) || !userCredentials.get(userId).equals(pin)) {
+            showMessage("Invalid user ID or PIN. Please try again.");
+            return;
+        }
+
+        showMessage("Login successful.");
+        currentUser = userId;
+        openTransactionMenu();
+    }
+
+    private void openTransactionMenu() {
+        // Implement transaction menu here
+        // For demonstration, you can display another JFrame or console menu
+        System.out.println("Welcome, " + currentUser + "! You can now perform transactions.");
+        // Implement transaction functionalities
+    }
+
+    private void showMessage(String message) {
+        JOptionPane.showMessageDialog(this, message);
     }
 
     public static void main(String[] args) {
